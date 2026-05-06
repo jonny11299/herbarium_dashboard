@@ -2,24 +2,25 @@
 
 :root {
   --bg: #000000;
-  --bg-deep: #0a0810;
-  --bg-panel: #050608;
-  --accent: #d6a85f;
-  --accent-muted: #8a6a3a;
-  --accent-subtle: rgba(214, 168, 95, 0.22);
-  --accent-2: #7fb8c4;
-  --accent-2-muted: #4a8794;
-  --accent-warm: #e0a76a;
-  --accent-botanical: #6a8a6e;
-  --text: #e2d6bc;
-  --text-secondary: #998a70;
-  --text-tertiary: #5a4f3e;
-  --border: rgba(214, 168, 95, 0.24);
-  --border-emphasis: rgba(214, 168, 95, 0.5);
-  --positive: #9ec48c;
-  --negative: #d68262;
+  --bg-deep: #15172571;
+  --bg-panel: #000000;
+  --accent: #aaff97;
+  --accent-data: #64c6ffcd;
+  --accent-muted: #a2cc98ca;
+  --accent-subtle: #bdc4ff62;
+  --accent-2: #ced36a;
+  --accent-2-muted: #ced36aa7;
+  --accent-warm: #f6ff00;
+  --accent-botanical: #0D9E8C;
+  --text: #adb6c2;
+  --text-secondary: #adb6c2;
+  --text-tertiary: #6d738e;
+  --border: #ffffff2f;
+  --border-emphasis: #fefefeb9;
+  --positive: #00ed00;
+  --negative: #fe4c63;
   --mono: 'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, monospace;
-  --serif: 'Cormorant Garamond', 'Iowan Old Style', Georgia, serif;
+  --serif: Georgia, 'Cormorant Garamond', 'Iowan Old Style', serif;
   --base-fs: 14px;
 }
 
@@ -629,19 +630,19 @@ body::after {
 
 .chart-line {
   fill: none;
-  stroke: var(--accent);
+  stroke: var(--accent-data);
   stroke-width: 0.8;
 }
 
 .chart-fill {
-  fill: var(--accent);
+  fill: var(--accent-data);
   fill-opacity: 0.06;
 }
 
 .chart-bar {
-  fill: var(--accent);
+  fill: var(--accent-data);
   fill-opacity: 0.5;
-  stroke: var(--accent);
+  stroke: var(--accent-data);
   stroke-width: 0.5;
 }
 
@@ -688,9 +689,9 @@ body::after {
 }
 
 .radial-bar {
-  fill: var(--accent);
+  fill: var(--accent-data);
   fill-opacity: 0.4;
-  stroke: var(--accent);
+  stroke: var(--accent-data);
   stroke-width: 0.4;
 }
 
@@ -706,7 +707,7 @@ body::after {
 
 .contour {
   fill: none;
-  stroke: var(--accent);
+  stroke: var(--accent-data);
   stroke-width: 0.4;
   stroke-opacity: 0.7;
 }
@@ -718,7 +719,7 @@ body::after {
 
 .arc-ribbon {
   fill: none;
-  stroke: var(--accent);
+  stroke: var(--accent-data);
   stroke-width: 0.5;
 }
 
@@ -728,7 +729,7 @@ body::after {
 
 .spark-line {
   fill: none;
-  stroke: var(--accent);
+  stroke: var(--accent-data);
   stroke-width: 0.8;
 }
 
@@ -739,22 +740,22 @@ body::after {
 }
 
 .hg-rect.hg-1 {
-  fill: var(--accent);
+  fill: var(--accent-data);
   fill-opacity: 0.15;
 }
 
 .hg-rect.hg-2 {
-  fill: var(--accent);
+  fill: var(--accent-data);
   fill-opacity: 0.35;
 }
 
 .hg-rect.hg-3 {
-  fill: var(--accent);
+  fill: var(--accent-data);
   fill-opacity: 0.6;
 }
 
 .hg-rect.hg-4 {
-  fill: var(--accent);
+  fill: var(--accent-data);
   fill-opacity: 0.9;
 }
 
@@ -816,7 +817,7 @@ body::after {
 
 .dial-fill {
   fill: none;
-  stroke: var(--accent);
+  stroke: var(--accent-data);
   stroke-width: 2;
   stroke-linecap: round;
 }
