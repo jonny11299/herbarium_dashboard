@@ -4,11 +4,11 @@
   --bg: #000000;
   --bg-deep: #15172571;
   --bg-panel: #000000;
-  --accent: #aaff97;
+  --accent: #b97ab9;
   --accent-data: #64c6ffcd;
-  --accent-muted: #a2cc98ca;
+  --accent-muted: #889386;
   --accent-subtle: #bdc4ff62;
-  --accent-2: #ced36a;
+  --accent-2: #d36a97;
   --accent-2-muted: #ced36aa7;
   --accent-warm: #f6ff00;
   --accent-botanical: #0D9E8C;
@@ -17,11 +17,11 @@
   --text-tertiary: #6d738e;
   --border: #ffffff2f;
   --border-emphasis: #fefefeb9;
-  --positive: #00ed00;
-  --negative: #fe4c63;
-  --mono: 'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, monospace;
-  --serif: Georgia, 'Cormorant Garamond', 'Iowan Old Style', serif;
-  --base-fs: 14px;
+  --positive: #aaff97;
+  --negative: #d94c5f;
+  --mono: 'IBM Plex Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+  --serif: 'EB Garamond', 'Iowan Old Style', Georgia, serif;
+  --base-fs: 16px;
 }
 
 .aesthetic-nebula {

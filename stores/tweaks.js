@@ -5,8 +5,8 @@ export const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
   "density": 2,
   "showCorners": true,
   "leftPct": 33,
-  "monoFont": "jetbrains",
-  "serifFont": "cormorant"
+  "monoFont": "ibm",
+  "serifFont": "eb"
 }/*EDITMODE-END*/;
 
 const { subscribe, update } = writable({ ...TWEAK_DEFAULTS });
