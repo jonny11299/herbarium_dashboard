@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+
+
+<head>
+    <meta charset="UTF-8">
+    <title>Pixel Reader</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            display: flex;
+            justify-content: center;
+            padding: 4rem;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        #dropzone {
+            width: 400px;
+            height: 200px;
+            border: 2px dashed #aaa;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #aaa;
+            cursor: pointer;
+            transition: border-color 0.2s, color 0.2s;
+        }
+
+        #dropzone.over {
+            border-color: #555;
+            color: #555;
+        }
+
+        #dropzone.loaded {
+            border-style: solid;
+            border-color: #333;
+        }
+
+        canvas {
+            display: none;
+        }
+
+        #swatches {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 1.5rem;
+            width: 400px;
+        }
+
+        .swatch {
+            width: 32px;
+            height: 32px;
+            border-radius: 4px;
+            flex-shrink: 0;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div>
+
+        <div id="dropzone">Drop an image here, or click to upload</div>
+        <canvas id="canvas"></canvas>
+        <input type="file" id="fileInput" accept="image/*" style="display:none">
+
+    </div>
+    <br>
+    <div>
+        Load existing cube:
+        <input type="file" id="colorcubeInput" accept="*.json">
+    </div>
+    <div>
+
+        <div id="swatches"></div>
+    </div>
+
+    <script>
+        const dropzone = document.getElementById('dropzone');
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        const fileInput = document.getElementById('fileInput');
+
+        const loadExistingCube = document.getElementById('colorcubeInput');
+        loadExistingCube.addEventListener('click', () => {
+            loadJSON(data => {
+                try {
+                    renderSwatches(data);
+                } catch (error) {
+                    console.log("Could not load swatch from selected file:");
+                    console.error(error);
+                }
+            });
+        })
+
+        // Click to open file picker
+        dropzone.addEventListener('click', () => fileInput.click());
+        fileInput.addEventListener('change', e => handleFile(e.target.files[0]));
+
+        // Drag and drop
+        dropzone.addEventListener('dragover', e => { e.preventDefault(); dropzone.classList.add('over'); });
+        dropzone.addEventListener('dragleave', () => dropzone.classList.remove('over'));
+        dropzone.addEventListener('drop', e => {
+            e.preventDefault();
+            dropzone.classList.remove('over');
+            handleFile(e.dataTransfer.files[0]);
+        });
+
+        function handleFile(file) {
+            if (!file || !file.type.startsWith('image/')) return;
+            const reader = new FileReader();
+            reader.onload = e => loadImage(e.target.result);
+            reader.readAsDataURL(file);
+        }
+
+        function loadImage(src) {
+            console.log("Loading image...");
+            const img = new Image();
+            img.onload = () => {
+                console.log("Loaded image.");
+                canvas.width = img.width;
+                canvas.height = img.height;
+                ctx.drawImage(img, 0, 0);
+
+                dropzone.textContent = `${img.width} × ${img.height}px — reading pixels…`;
+                dropzone.classList.add('loaded');
+
+                readPixels(img.width, img.height);
+            };
+            img.src = src;
+        }
+
+
+        /**
+     * Render an array of color cluster objects as 32×32 swatches.
+     * Each element is expected to have a `color` property: [R, G, B] (floats 0–255).
+     */
+        function renderSwatches(clusters) {
+            const container = document.getElementById('swatches');
+            container.innerHTML = '';
+
+            clusters.forEach(({ color }) => {
+                const [r, g, b] = color.map(Math.round);
+                const hex = '#' + [r, g, b].map(v => v.toString(16).padStart(2, '0')).join('');
+                const swatch = document.createElement('div');
+                swatch.className = 'swatch';
+                swatch.style.background = `rgb(${r}, ${g}, ${b})`;
+                swatch.title = `${hex} — click to copy`;
+                swatch.style.cursor = 'pointer';
+                swatch.addEventListener('click', () => {
+                    navigator.clipboard.writeText(hex).then(() => {
+                        swatch.title = 'copied!';
+                        setTimeout(() => swatch.title = `${hex} — click to copy`, 1500);
+                    });
+                    console.log("copied " + hex + " to clipboard.");
+                });
+                container.appendChild(swatch);
+            });
+        }
+
+        /**
+     * Save any object to disk as a JSON file.
+     * @param {*}      data     - Anything JSON-serialisable.
+     * @param {string} filename - e.g. 'clusters.json'
+     */
+        function saveJSON(data, filename = `colorcube_${Date.now()}_.json`) {
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+        /**
+     * Load a JSON file from disk and pass the parsed result to a callback.
+     * @param {function} callback - Called with the parsed JSON data.
+     */
+        function loadJSON(callback) {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = '.json,application/json';
+            input.onchange = e => {
+                const file = e.target.files[0];
+                if (!file) return;
+                const reader = new FileReader();
+                reader.onload = e => callback(JSON.parse(e.target.result));
+                reader.readAsText(file);
+            };
+            input.click();
+        }
+
+
+        function readPixels(width, height) {
+            // getImageData returns a flat Uint8ClampedArray: [R, G, B, A, R, G, B, A, ...]
+            console.log("Reading pixels...");
+            const { data } = ctx.getImageData(0, 0, width, height);
+            const pixels = [];
+
+            for (let i = 0; i < data.length; i += 4) {
+                const r = data[i];
+                const g = data[i + 1];
+                const b = data[i + 2];
+                const a = data[i + 3];
+                pixels.push({ r, g, b, a });
+            }
+
+            console.log(`Total pixels: ${pixels.length}`);
+            console.log('First 10 pixels:', pixels.slice(0, 10));
+            console.log('All pixels:', pixels);
+
+            dropzone.textContent = `${width} × ${height}px — ${pixels.length.toLocaleString()} pixels logged to console`;
+
+            extractColors(pixels);
+        }
+
+        // creates a quantized color-cube which counts the "hits" of a color within each section of the cube
+
+        function extractColors(pixels, t = 7, numColors = 200) {
+            const startTime = Date.now();
+            // t = threshhold for sampling
+            // numColors = number of colors to pick out
+
+            // Show a template of what each section of the cube looks like:
+            /*
+            cube.push({
+                pixel: [r, g, b],
+                count: 0
+            });
+            */
+
+
+
+            // define the quantized color space:
+            // length of cube is Math.pow(Math.ceil(256/t), 3);
+            const cube = [];
+            const len = Math.ceil(256 / t);
+            for (let i = 0; i < len; i++) {
+                let r = i * t;
+
+                for (let j = 0; j < len; j++) {
+                    let g = j * t;
+
+                    for (let k = 0; k < len; k++) {
+                        let b = k * t;
+
+                        cube.push({
+                            pixel: [r, g, b],
+                            err: [0, 0, 0],
+                            count: 0
+                        });
+                    }
+                }
+            }
+
+
+            console.log(cube);
+            console.log(`Time elapsed: ${Date.now() - startTime}`);
+
+            // Increment cube's counts for each pixel
+            // lock is for testing, so I can see each result
+            const printEveryXSamples = 100000;
+            const maxSamples = printEveryXSamples; // -1; // 2 * printEveryXSamples; // set to -1 for doing the entire thing
+            let sample = 0;
+            for (let p of pixels) {
+
+                // index = (for adjusted color values) r * t^2 + g * t + b
+                const radj = p.r / t;
+                const gadj = p.g / t;
+                const badj = p.b / t;
+
+                const rbin = Math.floor(radj / t) * t;
+                const gbin = Math.floor(gadj / t) * t;
+                const bbin = Math.floor(badj / t) * t;
+
+                const rerror = radj - Math.floor(radj / t) * t;
+                const gerror = gadj - Math.floor(gadj / t) * t;
+                const berror = badj - Math.floor(badj / t) * t;
+
+
+                // look up the index in the cube
+                // use len here, not t
+                // console.log(`len === ${len}`);
+                const index = Math.floor(radj / t) * len * len + Math.floor(gadj / t) * len + Math.floor(badj / t);
+
+
+                // assert that the color here matches radj - rerror
+                if (cube[index].pixel[0] !== rbin || cube[index].pixel[1] !== gbin || cube[index].pixel[2] !== bbin) {
+                    const errstring = `Missing index; expected adj values around ${rbin}, ${gbin}, ${bbin}, got ${cube[index].pixel}`;
+                    console.error(errstring);
+                }
+
+
+                // 30, 30, 28 belongs with index 172, for 28, 28, 28
+                // err would be 2, 2, 0, incremented each step, then divided by cube.length at the end
+                try {
+                    cube[index].count++;
+                    cube[index].err[0] += rerror;
+                    cube[index].err[1] += gerror;
+                    cube[index].err[2] += berror;
+
+                } catch (error) {
+                    console.error(error);
+                    console.log(`r, g, b === ${p.r}, ${p.g}, ${p.b}`);
+                    console.log(`r, g, b (adj) === ${radj}, ${gadj}, ${badj}`);
+                    console.log(`r, g, b (bin) === ${rbin}, ${gbin}, ${bbin}`);
+                    console.log(`r, g, b (err) === ${rerror}, ${gerror}, ${berror}`);
+                    console.log(`index === ${index}, cube.length === ${cube.length}`);
+                    // return;
+                }
+
+
+                if (sample % printEveryXSamples === 0) {
+                    // console.error(error);
+                    console.log(`Sample === ${sample} / ${pixels.length} total samples.`);
+                    console.log(`${100 * (sample / pixels.length)}% done.`);
+                    console.log(`r, g, b === ${p.r}, ${p.g}, ${p.b}`);
+                    console.log(`r, g, b (adj) === ${radj}, ${gadj}, ${badj}`);
+                    console.log(`r, g, b (err) === ${rerror}, ${gerror}, ${berror}`);
+                    console.log(`index === ${index}, cube.length === ${cube.length}`);
+
+                }
+
+
+                // tail of the loop. Increment sample, break if we should exit early.
+                sample++;
+                if (maxSamples !== -1 && sample > maxSamples) {
+                    break;
+                }
+            }
+
+
+            console.log(cube);
+            console.log("Finished reading cube. Formatting now.");
+            console.log(`Time elapsed: ${Date.now() - startTime}`);
+
+            // correct error (could do this with only the selected colors, but whatever)
+            for (let c of cube) {
+                if (c.count > 0) {
+                    c.err[0] = c.err[0] / c.count;
+                    c.err[1] = c.err[1] / c.count;
+                    c.err[2] = c.err[2] / c.count;
+                } else {
+                    c.err = [0, 0, 0];
+                }
+            }
+
+            // sort
+            const sortedCube = cube.sort((a, b) => {
+                if (a.count > b.count) return -1;
+                else if (a.count === b.count) return 0;
+                else return 1;
+            }).slice(0, numColors);
+
+            // format each selected color:
+            for (let c of sortedCube) {
+                c.color = c.pixel.map((val, i) => {
+                    return Math.round((val + c.err[i]) * t);
+                });
+            }
+
+            console.log("Finished formatting cube. Results:");
+            console.log(sortedCube);
+            console.log(`Time elapsed: ${Date.now() - startTime}`);
+
+            saveJSON(sortedCube);
+
+            console.log("Rendering swatches");
+            renderSwatches(sortedCube);
+        }
+    </script>
+
+</body>
+
+</html>

@@ -1,6 +1,31 @@
 @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400;1,500&family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=Playfair+Display:ital,wght@0,400;1,400&family=JetBrains+Mono:wght@300;400;500&family=IBM+Plex+Mono:wght@300;400;500&family=Space+Mono:wght@400;700&family=Open+Sans:wght@300;400;500;600&display=swap');
 
+
 :root {
+  --bg: #EDE8E2;
+  --bg-deep: #C0B8AE71;
+  --bg-panel: #E8E2DC;
+  --accent: #4e7c5b;
+  --accent-data: #B88828CD;
+  --accent-muted: #809786;
+  --accent-subtle: #6E9E7A62;
+  --accent-2: #6858A8;
+  --accent-2-muted: #6858A8A7;
+  --accent-warm: #bb5005;
+  --accent-botanical: #366848;
+  --text: #2A3830;
+  --text-secondary: #504840;
+  --text-tertiary: #827870;
+  --border: #C0B8AE2F;
+  --border-emphasis: #847A6EB9;
+  --positive: #378038;
+  --negative: #B84520;
+  --mono: 'IBM Plex Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+  --serif: 'EB Garamond', 'Iowan Old Style', Georgia, serif;
+  --base-fs: 16px;
+}
+
+.spacey {
   --bg: #000000;
   --bg-deep: #15172571;
   --bg-panel: #000000;
@@ -23,6 +48,80 @@
   --serif: 'EB Garamond', 'Iowan Old Style', Georgia, serif;
   --base-fs: 16px;
 }
+
+
+.floral-white {
+  --bg: #EDE8E2;
+  --bg-deep: #C0B8AE71;
+  --bg-panel: #E8E2DC;
+  --accent: #6E9E7A;
+  --accent-data: #B88828CD;
+  --accent-muted: #92AA98;
+  --accent-subtle: #6E9E7A62;
+  --accent-2: #6858A8;
+  --accent-2-muted: #6858A8A7;
+  --accent-warm: #C05218;
+  --accent-botanical: #366848;
+  --text: #2A3830;
+  --text-secondary: #504840;
+  --text-tertiary: #827870;
+  --border: #C0B8AE2F;
+  --border-emphasis: #847A6EB9;
+  --positive: #529A4E;
+  --negative: #B84520;
+  --mono: 'IBM Plex Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+  --serif: 'EB Garamond', 'Iowan Old Style', Georgia, serif;
+  --base-fs: 16px;
+}
+
+.floral-halfway-yellow {
+  --bg: #EFE9E1;
+  --bg-deep: #C4B9A771;
+  --bg-panel: #ECE3D7;
+  --accent: #749E76;
+  --accent-data: #C08C29CD;
+  --accent-muted: #97AC96;
+  --accent-subtle: #749E7662;
+  --accent-2: #6A5AA4;
+  --accent-2-muted: #6A5AA4A7;
+  --accent-warm: #C65619;
+  --accent-botanical: #386A47;
+  --text: #2C382C;
+  --text-secondary: #554B3E;
+  --text-tertiary: #867B6F;
+  --border: #C4B9A72F;
+  --border-emphasis: #877A66B9;
+  --positive: #569C4C;
+  --negative: #BC4721;
+  --mono: 'IBM Plex Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+  --serif: 'EB Garamond', 'Iowan Old Style', Georgia, serif;
+  --base-fs: 16px;
+}
+
+.floral-yellow {
+  --bg: #F0EAE0;
+  --bg-deep: #C8BAA071;
+  --bg-panel: #EBE5D8;
+  --accent: #7A9E72;
+  --accent-data: #C8902ACD;
+  --accent-muted: #9BAF94;
+  --accent-subtle: #7A9E7262;
+  --accent-2: #6B5CA0;
+  --accent-2-muted: #6B5CA0A7;
+  --accent-warm: #CC5A1A;
+  --accent-botanical: #3A6B45;
+  --text: #2E3828;
+  --text-secondary: #5A4E3C;
+  --text-tertiary: #8A7E6E;
+  --border: #C8BAA02F;
+  --border-emphasis: #8A7A5EB9;
+  --positive: #5A9E4A;
+  --negative: #C04822;
+  --mono: 'IBM Plex Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+  --serif: 'EB Garamond', 'Iowan Old Style', Georgia, serif;
+  --base-fs: 16px;
+}
+
 
 .aesthetic-nebula {
   --bg: #08051a;
