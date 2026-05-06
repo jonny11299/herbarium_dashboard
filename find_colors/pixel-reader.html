@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
 
-
 <head>
     <meta charset="UTF-8">
     <title>Pixel Reader</title>
@@ -15,6 +14,22 @@
             align-items: center;
         }
 
+        #upload-row {
+            display: flex;
+            align-items: flex-start;
+            gap: 20px;
+        }
+
+        #image-preview {
+            width: 200px;
+            height: 200px;
+            border-radius: 8px;
+            object-fit: cover;
+            display: none;
+            border: 2px solid #333;
+            flex-shrink: 0;
+        }
+
         #dropzone {
             width: 400px;
             height: 200px;
@@ -26,6 +41,9 @@
             color: #aaa;
             cursor: pointer;
             transition: border-color 0.2s, color 0.2s;
+            text-align: center;
+            padding: 1rem;
+            box-sizing: border-box;
         }
 
         #dropzone.over {
@@ -47,7 +65,7 @@
             flex-wrap: wrap;
             gap: 6px;
             margin-top: 1.5rem;
-            width: 400px;
+            width: 620px;
         }
 
         .swatch {
@@ -56,25 +74,86 @@
             border-radius: 4px;
             flex-shrink: 0;
         }
+
+        #palette-actions {
+            display: none;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 1.5rem;
+            width: 620px;
+        }
+
+        #palette-actions label {
+            font-size: 0.85rem;
+            color: #555;
+        }
+
+        #palette-name-row {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        #palette-name {
+            flex: 1;
+            padding: 8px 12px;
+            border: 1.5px solid #ccc;
+            border-radius: 6px;
+            font-size: 0.95rem;
+            font-family: sans-serif;
+            transition: border-color 0.2s;
+        }
+
+        #palette-name:focus {
+            outline: none;
+            border-color: #555;
+        }
+
+        #download-btn {
+            padding: 8px 18px;
+            background: #222;
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            font-family: sans-serif;
+            cursor: pointer;
+            transition: background 0.2s;
+            white-space: nowrap;
+        }
+
+        #download-btn:hover {
+            background: #444;
+        }
     </style>
 </head>
 
 <body>
 
-    <div>
-
-        <div id="dropzone">Drop an image here, or click to upload</div>
-        <canvas id="canvas"></canvas>
-        <input type="file" id="fileInput" accept="image/*" style="display:none">
-
+    <div id="upload-row">
+        <img id="image-preview" alt="Uploaded image preview" />
+        <div>
+            <div id="dropzone">Drop an image here, or click to upload</div>
+            <canvas id="canvas"></canvas>
+            <input type="file" id="fileInput" accept="image/*" style="display:none">
+        </div>
     </div>
+
     <br>
     <div>
         Load existing cube:
         <input type="file" id="colorcubeInput" accept="*.json">
     </div>
-    <div>
 
+    <div id="palette-actions">
+        <label>Palette name</label>
+        <div id="palette-name-row">
+            <input type="text" id="palette-name" placeholder="e.g. sunset-beach" />
+            <button id="download-btn">Download JSON</button>
+        </div>
+    </div>
+
+    <div>
         <div id="swatches"></div>
     </div>
 
@@ -83,12 +162,27 @@
         const canvas = document.getElementById('canvas');
         const ctx = canvas.getContext('2d');
         const fileInput = document.getElementById('fileInput');
+        const imagePreview = document.getElementById('image-preview');
+        const paletteActions = document.getElementById('palette-actions');
+        const downloadBtn = document.getElementById('download-btn');
+        const paletteName = document.getElementById('palette-name');
+
+        // Holds the most recently computed/loaded cube for download
+        let currentCube = null;
+
+        downloadBtn.addEventListener('click', () => {
+            if (!currentCube) return;
+            const name = paletteName.value.trim().replace(/\s+/g, '-') || `colorcube_${Date.now()}`;
+            saveJSON(currentCube, `${name}.json`);
+        });
 
         const loadExistingCube = document.getElementById('colorcubeInput');
         loadExistingCube.addEventListener('click', () => {
             loadJSON(data => {
                 try {
+                    currentCube = data;
                     renderSwatches(data);
+                    paletteActions.style.display = 'flex';
                 } catch (error) {
                     console.log("Could not load swatch from selected file:");
                     console.error(error);
@@ -112,7 +206,12 @@
         function handleFile(file) {
             if (!file || !file.type.startsWith('image/')) return;
             const reader = new FileReader();
-            reader.onload = e => loadImage(e.target.result);
+            reader.onload = e => {
+                // Show preview immediately
+                imagePreview.src = e.target.result;
+                imagePreview.style.display = 'block';
+                loadImage(e.target.result);
+            };
             reader.readAsDataURL(file);
         }
 
@@ -219,7 +318,7 @@
 
         // creates a quantized color-cube which counts the "hits" of a color within each section of the cube
 
-        function extractColors(pixels, t = 7, numColors = 200) {
+        function extractColors(pixels, t = 30, numColors = 200) {
             const startTime = Date.now();
             // t = threshhold for sampling
             // numColors = number of colors to pick out
@@ -258,12 +357,12 @@
 
 
             console.log(cube);
-            console.log(`Time elapsed: ${Date.now() - startTime}`);
+            console.log(`Time elapsed: ${Date.now() - startTime} ms`);
 
             // Increment cube's counts for each pixel
             // lock is for testing, so I can see each result
             const printEveryXSamples = 100000;
-            const maxSamples = printEveryXSamples; // -1; // 2 * printEveryXSamples; // set to -1 for doing the entire thing
+            const maxSamples = -1; // printEveryXSamples; // -1; // 2 * printEveryXSamples; // set to -1 for doing the entire thing
             let sample = 0;
             for (let p of pixels) {
 
@@ -272,20 +371,23 @@
                 const gadj = p.g / t;
                 const badj = p.b / t;
 
-                const rbin = Math.floor(radj / t) * t;
-                const gbin = Math.floor(gadj / t) * t;
-                const bbin = Math.floor(badj / t) * t;
+                const ri = Math.floor(radj);
+                const gi = Math.floor(gadj);
+                const bi = Math.floor(badj);
 
-                const rerror = radj - Math.floor(radj / t) * t;
-                const gerror = gadj - Math.floor(gadj / t) * t;
-                const berror = badj - Math.floor(badj / t) * t;
+                const rbin = ri * t;
+                const gbin = gi * t;
+                const bbin = bi * t;
+
+                const rerror = p.r - rbin;
+                const gerror = p.g - gbin;
+                const berror = p.b - bbin;
 
 
                 // look up the index in the cube
                 // use len here, not t
                 // console.log(`len === ${len}`);
-                const index = Math.floor(radj / t) * len * len + Math.floor(gadj / t) * len + Math.floor(badj / t);
-
+                const index = ri * len * len + gi * len + bi;
 
                 // assert that the color here matches radj - rerror
                 if (cube[index].pixel[0] !== rbin || cube[index].pixel[1] !== gbin || cube[index].pixel[2] !== bbin) {
@@ -335,7 +437,7 @@
 
             console.log(cube);
             console.log("Finished reading cube. Formatting now.");
-            console.log(`Time elapsed: ${Date.now() - startTime}`);
+            console.log(`Time elapsed: ${Date.now() - startTime} ms`);
 
             // correct error (could do this with only the selected colors, but whatever)
             for (let c of cube) {
@@ -358,14 +460,16 @@
             // format each selected color:
             for (let c of sortedCube) {
                 c.color = c.pixel.map((val, i) => {
-                    return Math.round((val + c.err[i]) * t);
+                    return Math.round((val + c.err[i]));
                 });
             }
 
             console.log("Finished formatting cube. Results:");
             console.log(sortedCube);
-            console.log(`Time elapsed: ${Date.now() - startTime}`);
+            console.log(`Time elapsed: ${Date.now() - startTime} ms`);
 
+            currentCube = sortedCube;
+            paletteActions.style.display = 'flex';
             saveJSON(sortedCube);
 
             console.log("Rendering swatches");
